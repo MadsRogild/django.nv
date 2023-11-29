@@ -46,7 +46,7 @@ jobs:
     needs: test
     steps:
       - uses: actions/checkout@v2
-      - run: docker run -rm -v $(pwd):/src hysnsec/safety check -r requirements.txt --save-json results.json
+      - run: docker run --rm -v $(pwd):/src hysnsec/safety check -r requirements.txt --save-json results.json
       - uses: actions/upload-artifact@v2
         with:
           name: Safety
