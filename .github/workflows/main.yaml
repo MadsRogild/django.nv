@@ -47,11 +47,41 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: docker run --rm -v $(pwd):/src hysnsec/safety check -r requirements.txt --save-json results.json
+        continue-on-error: true 
       - uses: actions/upload-artifact@v2
         with:
           name: Safety
           path: results.json
         if: always()
+
+  oast-snyk:
+    runs-on: ubuntu-20.04
+    needs: test
+    steps:
+      - uses: actions/checkout@master      
+      - uses: snyk/actions/setup@master
+      - uses: actions/setup-go@v1
+        with:
+          go-version: "1.13"
+
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '10.x'
+
+      - name: Install Node modules
+        run: npm install
+
+      - name: Run Snyk
+        run: snyk test --json > snyk-results.json
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        continue-on-error: true 
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: Snyk               
+          path: snyk-results.json
+        if: always()        # what is this for?
 
   integration:
     runs-on: ubuntu-20.04
