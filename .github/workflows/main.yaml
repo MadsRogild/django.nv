@@ -83,6 +83,20 @@ jobs:
           path: snyk-results.json
         if: always()        # what is this for?
 
+  sast:
+    runs-on: ubuntu-20.04
+    needs: build
+    steps:
+      - uses: actions/checkout@v2
+
+      - run: docker run --rm -v $(pwd):/src hysnsec/bandit -r /src -f json -o /src/bandit-output.json
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: Bandit
+          path: bandit-output.json
+        if: always()                        # what is this for?
+
   integration:
     runs-on: ubuntu-20.04
     needs: test
